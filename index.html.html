@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pipefitting — Guía Visual Interactiva</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0d1117;
+    --panel:    #161b22;
+    --border:   #30363d;
+    --steel:    #8b9eb0;
+    --steel2:   #c9d8e8;
+    --blue:     #1f6feb;
+    --blue2:    #58a6ff;
+    --green:    #2ea043;
+    --green2:   #56d364;
+    --red:      #da3633;
+    --red2:     #ff7b72;
+    --gold:     #d29922;
+    --gold2:    #e3b341;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --pipe-col: #7a8fa0;
+    --pipe-hi:  #b8cfe0;
+    --pipe-sh:  #3a4a55;
+    --fluid:    #1a7aff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0d1117 0%, #1a2332 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:var(--steel2); letter-spacing:2px; }
+  .logo span { color:var(--gold2); }
+  .progress-bar { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--blue2)); border-radius:3px; transition:width 0.4s ease; }
+  .lesson-count { font-size:13px; color:var(--muted); white-space:nowrap; }
+
+  /* ── LAYOUT ── */
+  .app { display:flex; height:calc(100vh - 60px); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 260px; min-width:260px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 12px 0;
+  }
+  .sidebar-title { font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:3px; color:var(--muted); padding:8px 16px 4px; text-transform:uppercase; }
+  .nav-item {
+    display:flex; align-items:center; gap:10px;
+    padding: 10px 16px;
+    cursor:pointer; transition:all 0.2s;
+    border-left: 3px solid transparent;
+    font-size:13px; color:var(--muted);
+  }
+  .nav-item:hover { background:rgba(31,111,235,0.08); color:var(--text); }
+  .nav-item.active { border-left-color:var(--blue2); background:rgba(31,111,235,0.12); color:var(--blue2); }
+  .nav-item.done { color:var(--green2); }
+  .nav-item .num { font-family:'Oswald',sans-serif; font-size:11px; min-width:20px; opacity:0.5; }
+  .nav-item .check { margin-left:auto; font-size:12px; }
+
+  /* ── MAIN ── */
+  .main { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
+
+  /* ── LESSON ── */
+  .lesson { display:none; flex-direction:column; height:100%; }
+  .lesson.active { display:flex; }
+
+  .lesson-header {
+    padding: 24px 32px 20px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(31,111,235,0.06) 0%, transparent 100%);
+  }
+  .lesson-tag { font-size:11px; letter-spacing:3px; color:var(--blue2); font-family:'Oswald',sans-serif; margin-bottom:6px; }
+  .lesson-title { font-family:'Oswald',sans-serif; font-size:28px; font-weight:700; color:var(--steel2); line-height:1.2; }
+  .lesson-subtitle { font-size:14px; color:var(--muted); margin-top:4px; }
+
+  .lesson-body { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden; }
+  @media(max-width:900px){ .lesson-body{grid-template-columns:1fr;} }
+
+  /* ── SVG PANEL ── */
+  .viz-panel {
+    background: #0a0f14;
+    border-right: 1px solid var(--border);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 24px; min-height:380px; position:relative; overflow:hidden;
+  }
+  .viz-panel::before {
+    content:'';
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(31,111,235,0.04) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .viz-panel svg { max-width:100%; max-height:340px; }
+  .viz-label { font-size:12px; color:var(--muted); margin-top:12px; text-align:center; font-style:italic; }
+
+  /* ── TEXT PANEL ── */
+  .text-panel { padding: 28px 32px; overflow-y:auto; }
+
+  .why-box {
+    background: rgba(31,111,235,0.08);
+    border: 1px solid rgba(31,111,235,0.25);
+    border-radius: 8px;
+    padding: 14px 16px; margin-bottom:18px;
+  }
+  .why-box .why-title { font-family:'Oswald',sans-serif; font-size:12px; letter-spacing:2px; color:var(--blue2); margin-bottom:6px; }
+  .why-box p { font-size:14px; line-height:1.6; color:var(--text); }
+
+  .examples { display:flex; flex-direction:column; gap:10px; margin-bottom:18px; }
+  .ex-good, .ex-bad {
+    border-radius:8px; padding:12px 14px;
+    font-size:13px; line-height:1.6;
+  }
+  .ex-good { background:rgba(46,160,67,0.1); border:1px solid rgba(86,211,100,0.25); }
+  .ex-bad  { background:rgba(218,54,51,0.1); border:1px solid rgba(255,123,114,0.25); }
+  .ex-label { font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:2px; margin-bottom:4px; }
+  .ex-good .ex-label { color:var(--green2); }
+  .ex-bad  .ex-label { color:var(--red2); }
+
+  .data-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:18px;
+  }
+  .data-cell {
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:6px; padding:10px 12px;
+  }
+  .data-cell .val { font-family:'Oswald',sans-serif; font-size:20px; color:var(--gold2); }
+  .data-cell .lbl { font-size:11px; color:var(--muted); margin-top:2px; }
+
+  .formula-chip {
+    background: rgba(211,153,34,0.1);
+    border: 1px solid rgba(227,179,65,0.35);
+    border-radius:8px; padding:12px 16px;
+    font-family:'Oswald',sans-serif; font-size:16px;
+    color:var(--gold2); text-align:center; margin-bottom:16px;
+    letter-spacing:1px;
+  }
+
+  .tip-box {
+    background:rgba(210,153,34,0.08); border:1px solid rgba(227,179,65,0.2);
+    border-radius:8px; padding:10px 14px; font-size:13px;
+    color:var(--gold2); line-height:1.5;
+  }
+  .tip-box::before { content:'💡 '; }
+
+  /* ── TABLE ── */
+  .mini-table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:16px; }
+  .mini-table th { background:rgba(31,111,235,0.15); color:var(--blue2); font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:1px; padding:8px 10px; text-align:left; border-bottom:1px solid var(--border); }
+  .mini-table td { padding:7px 10px; border-bottom:1px solid rgba(48,54,61,0.5); color:var(--text); }
+  .mini-table tr:hover td { background:rgba(255,255,255,0.02); }
+  .mini-table td:first-child { color:var(--blue2); font-weight:600; }
+
+  /* ── NAV BUTTONS ── */
+  .lesson-footer {
+    padding:16px 32px; border-top:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--panel);
+  }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 22px; border-radius:6px; cursor:pointer;
+    font-family:'Oswald',sans-serif; font-size:14px; letter-spacing:1px;
+    transition:all 0.2s; border:none;
+  }
+  .btn-prev { background:var(--border); color:var(--muted); }
+  .btn-prev:hover { background:#3d444d; color:var(--text); }
+  .btn-next { background:var(--blue); color:white; }
+  .btn-next:hover { background:#1a5fcc; }
+  .btn-done { background:var(--green); color:white; }
+  .btn-done:hover { background:#238636; }
+  .lesson-num { font-size:13px; color:var(--muted); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes flowAnim {
+    0%   { stroke-dashoffset: 200; }
+    100% { stroke-dashoffset: 0; }
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  @keyframes slideIn { from{transform:translateX(30px);opacity:0} to{transform:translateX(0);opacity:1} }
+  .lesson.active .text-panel > * { animation: slideIn 0.4s ease both; }
+  .lesson.active .text-panel > *:nth-child(2){animation-delay:.05s}
+  .lesson.active .text-panel > *:nth-child(3){animation-delay:.1s}
+  .lesson.active .text-panel > *:nth-child(4){animation-delay:.15s}
+  .lesson.active .text-panel > *:nth-child(5){animation-delay:.2s}
+
+  .flow-line { stroke-dasharray:12 6; animation:flowAnim 2s linear infinite; }
+  .pulse-dot { animation:pulse 1.5s ease-in-out infinite; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+  /* ── WELCOME SCREEN ── */
+  .welcome {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    height:100%; padding:48px; text-align:center; gap:20px;
+  }
+  .welcome-icon { font-size:64px; }
+  .welcome h1 { font-family:'Oswald',sans-serif; font-size:36px; color:var(--steel2); }
+  .welcome p  { font-size:15px; color:var(--muted); max-width:500px; line-height:1.7; }
+  .welcome .start-btn {
+    background:var(--blue); color:white; padding:14px 36px;
+    border-radius:8px; cursor:pointer; font-family:'Oswald',sans-serif;
+    font-size:16px; letter-spacing:2px; border:none; transition:all 0.2s;
+  }
+  .welcome .start-btn:hover { background:#1a5fcc; transform:translateY(-2px); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">PIPE<span>FITTING</span></div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="lesson-count" id="lessonCount">0 / 12 temas</div>
+</header>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-title">Temas</div>
+    <div id="navList"></div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="mainContent">
+    <!-- Welcome -->
+    <div class="welcome" id="welcomeScreen">
+      <div class="welcome-icon">🔧</div>
+      <h1>Guía Visual de Pipefitting</h1>
+      <p>Cada tema tiene un diagrama animado de tuberías y explicación visual con ejemplos buenos y malos. Navega con los botones o el menú lateral.</p>
+      <button class="start-btn" onclick="goLesson(0)">COMENZAR ▶</button>
+    </div>
+  </main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// LESSON DATA
+// ═══════════════════════════════════════════════════════════════
+const lessons = [
+
+// ── 0 ── MATEMÁTICAS
+{
+  tag:"TEMA 1", title:"Matemáticas con Pies y Pulgadas",
+  subtitle:"Por qué el campo mide en fracciones, no en decimales",
+  viz: `
+<svg viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="80" width="360" height="30" rx="4" fill="#1c2a36" stroke="#4a6070" stroke-width="1.5"/>
+  ${[0,1,2,3,4,5,6,7,8,9,10,11,12].map(i=>`
+    <line x1="${20+i*30}" y1="80" x2="${20+i*30}" y2="95" stroke="#8ba8c0" stroke-width="1.5"/>
+    <text x="${20+i*30}" y="75" fill="#6a8a9a" font-size="9" text-anchor="middle">${i}"</text>
+  `).join('')}
+  ${[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>`
+    <line x1="${20+i*30+15}" y1="80" x2="${20+i*30+15}" y2="90" stroke="#5a7a8a" stroke-width="1"/>
+  `).join('')}
+  <text x="200" y="125" fill="#8ba8c0" font-size="11" text-anchor="middle">Cada marca pequeña = 1/16"</text>
+  <line x1="200" y1="112" x2="185" y2="92" stroke="#e3b341" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="218" y="110" fill="#e3b341" font-size="10">5/8" = 0.625"</text>
+  <rect x="30" y="145" width="160" height="80" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="110" y="162" fill="#58a6ff" font-size="10" text-anchor="middle" font-weight="bold">DECIMAL → FRACCIÓN</text>
+  <text x="45" y="179" fill="#8b949e" font-size="9">0.0625</text><text x="120" y="179" fill="#e3b341" font-size="9">= 1/16</text>
+  <text x="45" y="192" fill="#8b949e" font-size="9">0.125</text> <text x="120" y="192" fill="#e3b341" font-size="9">= 1/8</text>
+  <text x="45" y="205" fill="#8b949e" font-size="9">0.625</text> <text x="120" y="205" fill="#e3b341" font-size="9">= 5/8</text>
+  <text x="45" y="218" fill="#8b949e" font-size="9">0.750</text> <text x="120" y="218" fill="#e3b341" font-size="9">= 3/4</text>
+  <rect x="220" y="150" width="140" height="28" rx="4" fill="#2a4050" stroke="#4a6070"/>
+  <rect x="220" y="150" width="96" height="28" rx="4" fill="#1f6feb" opacity="0.3"/>
+  <line x1="316" y1="148" x2="316" y2="180" stroke="#ff7b72" stroke-width="2" stroke-dasharray="4,2"/>
+  <text x="260" y="176" fill="#58a6ff" font-size="10" text-anchor="middle">36' − 6' − 8' − 4'</text>
+  <text x="340" y="169" fill="#56d364" font-size="11" text-anchor="middle" font-weight="bold">= 18'</text>
+  <text x="285" y="195" fill="#8b949e" font-size="9" text-anchor="middle">Pieza restante</text>
+  <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e3b341"/></marker></defs>
+</svg>`,
+  vizLabel:"Regla de campo — cada marca pequeña = 1/16\". Las fracciones son el idioma del campo.",
+  why:"La regla metálica no tiene decimales — tiene marcas de 1/16\". Si el plano dice 0.625\", necesitas saber que eso es la marca de 5/8\" en tu regla. Sin esa conversión no puedes medir correctamente y el trabajo falla.",
+  good:"Ves 0.625\" en el plano → sabes que es 5/8\" → encuentras la marca exacta en la regla → corte perfecto que pasa la inspección.",
+  bad:"No conviertes 0.625\" a fracción → adivinas la medida → el tubo queda 1/16\" de más → la soldadura queda con una brecha → inspector rechaza el trabajo.",
+  content:`<table class="mini-table"><thead><tr><th>Decimal</th><th>Fracción</th><th>En la regla</th></tr></thead><tbody>
+    <tr><td>0.0625</td><td>1/16</td><td>Marca más pequeña</td></tr>
+    <tr><td>0.125</td><td>1/8</td><td>2 marcas pequeñas</td></tr>
+    <tr><td>0.25</td><td>1/4</td><td>Marca mediana</td></tr>
+    <tr><td>0.5</td><td>1/2</td><td>Mitad exacta</td></tr>
+    <tr><td>0.625</td><td>5/8</td><td>5 marcas de 1/8</td></tr>
+    <tr><td>0.75</td><td>3/4</td><td>Marca grande</td></tr>
+    <tr><td>0.875</td><td>7/8</td><td>7 marcas de 1/8</td></tr>
+  </tbody></table>`
+},
+
+{
+  tag:"TEMA 2", title:"CC, FC y Cut Length",
+  subtitle:"Por qué hay 3 medidas para 'la misma' tubería",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="60" cy="130" rx="22" ry="22" fill="#2a4050" stroke="#4a7090" stroke-width="2"/>
+  <ellipse cx="60" cy="130" rx="8" ry="8" fill="#0d1117"/>
+  <text x="60" y="165" fill="#58a6ff" font-size="10" text-anchor="middle">CENTRO</text>
+  <ellipse cx="360" cy="130" rx="22" ry="22" fill="#2a4050" stroke="#4a7090" stroke-width="2"/>
+  <ellipse cx="360" cy="130" rx="8" ry="8" fill="#0d1117"/>
+  <text x="360" y="165" fill="#58a6ff" font-size="10" text-anchor="middle">CENTRO</text>
+  <rect x="82" y="116" width="256" height="28" rx="3" fill="#2a4050" stroke="#4a6070" stroke-width="1.5"/>
+  <rect x="82" y="118" width="256" height="8" rx="2" fill="rgba(184,207,224,0.15)"/>
+  <rect x="82" y="116" width="32" height="28" fill="rgba(255,123,114,0.2)" stroke="#ff7b72" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="98" y="112" fill="#ff7b72" font-size="9" text-anchor="middle">TO=3"</text>
+  <rect x="306" y="116" width="32" height="28" fill="rgba(255,123,114,0.2)" stroke="#ff7b72" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="322" y="112" fill="#ff7b72" font-size="9" text-anchor="middle">TO=3"</text>
+  <line x1="60" y1="80" x2="360" y2="80" stroke="#58a6ff" stroke-width="1.5" marker-start="url(#a2)" marker-end="url(#a2)"/>
+  <text x="210" y="75" fill="#58a6ff" font-size="11" text-anchor="middle" font-weight="bold">CC = 15"</text>
+  <line x1="114" y1="98" x2="306" y2="98" stroke="#56d364" stroke-width="1.5" marker-start="url(#a3)" marker-end="url(#a3)"/>
+  <text x="210" y="93" fill="#56d364" font-size="11" text-anchor="middle" font-weight="bold">CUT LENGTH = 9"</text>
+  <line x1="120" y1="130" x2="300" y2="130" stroke="#1a7aff" stroke-width="3" opacity="0.5" stroke-dasharray="12,6" class="flow-line"/>
+  <rect x="80" y="195" width="260" height="48" rx="8" fill="rgba(211,153,34,0.1)" stroke="rgba(227,179,65,0.4)"/>
+  <text x="210" y="214" fill="#e3b341" font-size="11" text-anchor="middle" font-weight="bold">CUT LENGTH = CC − TO1 − TO2</text>
+  <text x="210" y="232" fill="#e3b341" font-size="11" text-anchor="middle">15" − 3" − 3" = 9"</text>
+  <defs>
+    <marker id="a2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#58a6ff"/></marker>
+    <marker id="a3" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#56d364"/></marker>
+  </defs>
+</svg>`,
+  vizLabel:"CC (azul) vs Cut Length (verde) — el fluido azul muestra el interior del tubo",
+  why:"Los codos tienen cuerpo físico que ocupa espacio. Si cortas el tubo con la medida CC, quedará MÁS LARGO porque los codos ya ocupan espacio. Debes restar el take-off de cada extremo para obtener la longitud real de corte.",
+  good:"CC=15\", TO=3\" cada codo. Cut Length = 15\"−3\"−3\" = 9\". El tubo entra perfecto entre los dos codos.",
+  bad:"Se corta el tubo a 15\" sin restar los TO. Queda 6\" más largo. No entra en el spool, hay que rehacer el corte — tiempo y material perdido.",
+  content:`<div class="formula-chip">Cut Length = CC − Take-off 1 − Take-off 2</div>
+  <table class="mini-table"><thead><tr><th>Término</th><th>Significado</th></tr></thead><tbody>
+    <tr><td>CC</td><td>Center-to-Center: de centro a centro</td></tr>
+    <tr><td>FC</td><td>Face-to-Center: de cara al centro del otro</td></tr>
+    <tr><td>Cut Length</td><td>Lo que realmente cortas del tubo</td></tr>
+    <tr><td>Take-Off</td><td>Distancia del CENTRO del fitting a su CARA</td></tr>
+  </tbody></table>`
+},
+
+{
+  tag:"TEMA 3", title:"Diámetro Exterior (OD)",
+  subtitle:"Por qué una tubería de 4\" NO mide 4\" de diámetro exterior",
+  viz:`
+<svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(100,130)">
+    <circle r="55" fill="none" stroke="#4a6070" stroke-width="14"/>
+    <circle r="41" fill="#0a0f14" stroke="#1a2a36" stroke-width="1"/>
+    <circle r="55" fill="none" stroke="rgba(184,207,224,0.2)" stroke-width="4" stroke-dasharray="30,10" transform="rotate(-30)"/>
+    <line x1="-55" y1="-15" x2="55" y2="-15" stroke="#ff7b72" stroke-width="1.5" marker-start="url(#aR)" marker-end="url(#aR)"/>
+    <text x="0" y="-20" fill="#ff7b72" font-size="10" text-anchor="middle">OD = 4-1/2" (4.5")</text>
+    <line x1="-41" y1="8" x2="41" y2="8" stroke="#58a6ff" stroke-width="1.5" marker-start="url(#aB)" marker-end="url(#aB)"/>
+    <text x="0" y="22" fill="#58a6ff" font-size="10" text-anchor="middle">ID ≈ 4.026"</text>
+    <text x="0" y="-68" fill="#e3b341" font-size="12" text-anchor="middle" font-weight="bold">Nominal 4"</text>
+  </g>
+  <rect x="220" y="30" width="165" height="175" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="302" y="50" fill="#58a6ff" font-size="10" text-anchor="middle" font-weight="bold">TABLA OD</text>
+  <text x="302" y="62" fill="#58a6ff" font-size="8" text-anchor="middle">MEMORIZAR</text>
+  <line x1="228" y1="68" x2="377" y2="68" stroke="#30363d"/>
+  <text x="240" y="84" fill="#8b949e" font-size="9">2"</text><text x="265" y="84" fill="#e3b341" font-size="9">→ 2-3/8"</text>
+  <text x="240" y="98" fill="#8b949e" font-size="9">3"</text><text x="265" y="98" fill="#e3b341" font-size="9">→ 3-1/2"</text>
+  <text x="240" y="112" fill="#8b949e" font-size="9">4"</text><text x="265" y="112" fill="#e3b341" font-size="9">→ 4-1/2"</text>
+  <text x="240" y="126" fill="#8b949e" font-size="9">8"</text><text x="265" y="126" fill="#e3b341" font-size="9">→ 8-5/8"</text>
+  <text x="240" y="140" fill="#8b949e" font-size="9">10"</text><text x="265" y="140" fill="#e3b341" font-size="9">→ 10-3/4"</text>
+  <text x="240" y="154" fill="#8b949e" font-size="9">12"</text><text x="265" y="154" fill="#e3b341" font-size="9">→ 12-3/4"</text>
+  <text x="240" y="168" fill="#56d364" font-size="9" font-weight="bold">14"</text><text x="265" y="168" fill="#56d364" font-size="9" font-weight="bold">→ 14" ✓ EXACTO</text>
+  <defs>
+    <marker id="aR" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#ff7b72"/></marker>
+    <marker id="aB" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#58a6ff"/></marker>
+  </defs>
+</svg>`,
+  vizLabel:"Sección transversal 4\" — el OD real (rojo) es siempre mayor que el nombre nominal",
+  why:"El nombre '4 pulgadas' es histórico — era el diámetro interior aproximado. El OD se estandarizó para que todos los fittings calcen entre sí. El ÚNICO nominal que coincide exactamente con su OD es el 14\".",
+  good:"Sabes que tubería 4\" tiene OD=4.5\". Ordenas un codo de 4\" y encaja perfectamente sin ajustes.",
+  bad:"Asumes que tubería 4\" mide 4\" de OD. El codo real tiene 4.5\" → la soldadura queda desalineada 0.5\" → inspector rechaza el trabajo.",
+  content:`<div class="tip-box">El 14" es el ÚNICO nominal que coincide con su OD real (14"). Para los demás, el OD es siempre MAYOR que el nombre.</div>`
+},
+
+{
+  tag:"TEMA 4", title:"Codos LR vs SR y Take-Offs",
+  subtitle:"Por qué la curva del codo importa — y cómo calcular el take-off",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(30,50)">
+    <text x="70" y="12" fill="#58a6ff" font-size="11" text-anchor="middle" font-weight="bold">LR — Long Radius</text>
+    <rect x="0" y="30" width="80" height="20" rx="3" fill="#2a4050" stroke="#4a6070" stroke-width="1.5"/>
+    <path d="M80,40 Q120,40 120,80 L120,150" fill="none" stroke="#4a6070" stroke-width="20" stroke-linecap="round"/>
+    <path d="M80,40 Q120,40 120,80 L120,150" fill="none" stroke="#2a4050" stroke-width="16" stroke-linecap="round"/>
+    <rect x="110" y="150" width="20" height="60" rx="3" fill="#2a4050" stroke="#4a6070" stroke-width="1.5"/>
+    <path d="M10,40 Q115,40 120,80 L120,205" fill="none" stroke="#1a7aff" stroke-width="3" opacity="0.5" stroke-dasharray="10,5" class="flow-line"/>
+    <line x1="0" y1="14" x2="120" y2="14" stroke="#56d364" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#aGG)"/>
+    <text x="60" y="10" fill="#56d364" font-size="8" text-anchor="middle">TO = 9"</text>
+    <text x="70" y="222" fill="#56d364" font-size="9" text-anchor="middle">✅ Flujo suave</text>
+  </g>
+  <g transform="translate(245,50)">
+    <text x="65" y="12" fill="#ff7b72" font-size="11" text-anchor="middle" font-weight="bold">SR — Short Radius</text>
+    <rect x="0" y="30" width="80" height="20" rx="3" fill="#2a4050" stroke="#4a6070" stroke-width="1.5"/>
+    <path d="M80,40 Q100,40 100,60 L100,150" fill="none" stroke="#4a6070" stroke-width="20" stroke-linecap="round"/>
+    <path d="M80,40 Q100,40 100,60 L100,150" fill="none" stroke="#2a4050" stroke-width="16" stroke-linecap="round"/>
+    <rect x="90" y="150" width="20" height="60" rx="3" fill="#2a4050" stroke="#4a6070" stroke-width="1.5"/>
+    <path d="M10,40 Q100,40 100,60 L100,205" fill="none" stroke="#ff7b72" stroke-width="3" opacity="0.5" stroke-dasharray="6,4" class="flow-line"/>
+    <circle cx="100" cy="62" r="12" fill="rgba(255,123,114,0.2)" stroke="#ff7b72" class="pulse-dot"/>
+    <line x1="0" y1="14" x2="100" y2="14" stroke="#ff7b72" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#aRR)"/>
+    <text x="50" y="10" fill="#ff7b72" font-size="8" text-anchor="middle">TO = 6"</text>
+    <text x="65" y="222" fill="#ff7b72" font-size="9" text-anchor="middle">⚠ Turbulencia</text>
+  </g>
+  <defs>
+    <marker id="aGG" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#56d364"/></marker>
+    <marker id="aRR" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#ff7b72"/></marker>
+  </defs>
+</svg>`,
+  vizLabel:"LR (curva suave, flujo azul limpio) vs SR (curva cerrada, punto rojo = turbulencia)",
+  why:"Un codo LR tiene curva larga y suave — el fluido gira despacio sin golpear las paredes. Un codo SR tiene curva corta y cerrada — el fluido choca contra ella creando turbulencia que erosiona el metal. Elegir el incorrecto puede destruir el codo en meses.",
+  good:"Línea de vapor a alta velocidad → codo LR. El vapor fluye suave, sin golpear paredes → el codo dura décadas sin problemas.",
+  bad:"Codo SR en línea de vapor a alta velocidad. El vapor choca contra la curva cerrada → vibración → erosión → fuga → el codo falla en meses.",
+  content:`<table class="mini-table"><thead><tr><th>Fitting</th><th>Take-Off 6"</th><th>Uso ideal</th></tr></thead><tbody>
+    <tr><td>Codo 90° LR</td><td>9"</td><td>Vapor, gas, alta velocidad</td></tr>
+    <tr><td>Codo 90° SR</td><td>6"</td><td>Espacio limitado, baja velocidad</td></tr>
+    <tr><td>Codo 45° (4")</td><td>2-1/2"</td><td>Cambios de dirección suaves</td></tr>
+    <tr><td>Brida WNRF 150#</td><td>2-1/2"</td><td>Conexiones desmontables</td></tr>
+    <tr><td>Brida WNRF 300#</td><td>2-3/4"</td><td>Alta presión</td></tr>
+  </tbody></table>`
+},
+
+{
+  tag:"TEMA 5", title:"O-Let Fittings",
+  subtitle:"Tres formas de conectar un ramal a la tubería principal",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="110" width="380" height="40" rx="4" fill="#2a4050" stroke="#4a7090" stroke-width="2"/>
+  <rect x="20" y="112" width="380" height="10" rx="2" fill="rgba(184,207,224,0.12)"/>
+  <line x1="30" y1="130" x2="390" y2="130" stroke="#1a7aff" stroke-width="4" opacity="0.4" stroke-dasharray="15,5" class="flow-line"/>
+  <text x="210" y="165" fill="#8b949e" font-size="10" text-anchor="middle">TUBERÍA PRINCIPAL (HEADER)</text>
+  <g transform="translate(80,110)">
+    <polygon points="0,-40 -18,0 18,0" fill="#2a4050" stroke="#56d364" stroke-width="2"/>
+    <rect x="-8" y="-70" width="16" height="32" rx="2" fill="#2a4050" stroke="#4a6070"/>
+    <text x="0" y="-82" fill="#56d364" font-size="10" text-anchor="middle" font-weight="bold">WELDOLET</text>
+    <text x="0" y="-94" fill="#8b949e" font-size="8" text-anchor="middle">Butt weld</text>
+    <text x="0" y="148" fill="#56d364" font-size="9" text-anchor="middle">Alta presión</text>
+  </g>
+  <g transform="translate(210,110)">
+    <rect x="-14" y="-40" width="28" height="42" rx="3" fill="#2a4050" stroke="#e3b341" stroke-width="2"/>
+    <rect x="-8" y="-70" width="16" height="32" rx="2" fill="#2a4050" stroke="#4a6070"/>
+    <rect x="-6" y="-40" width="12" height="8" fill="#0a0f14"/>
+    <text x="0" y="-82" fill="#e3b341" font-size="10" text-anchor="middle" font-weight="bold">SOCKOLET</text>
+    <text x="0" y="-94" fill="#8b949e" font-size="8" text-anchor="middle">Socket weld</text>
+    <text x="0" y="148" fill="#e3b341" font-size="9" text-anchor="middle">Presión media</text>
+  </g>
+  <g transform="translate(340,110)">
+    <rect x="-14" y="-40" width="28" height="42" rx="3" fill="#2a4050" stroke="#58a6ff" stroke-width="2"/>
+    <rect x="-8" y="-70" width="16" height="32" rx="2" fill="#2a4050" stroke="#4a6070"/>
+    <line x1="-6" y1="-68" x2="6" y2="-68" stroke="#4a6070" stroke-width="0.8"/>
+    <line x1="-6" y1="-62" x2="6" y2="-62" stroke="#4a6070" stroke-width="0.8"/>
+    <line x1="-6" y1="-56" x2="6" y2="-56" stroke="#4a6070" stroke-width="0.8"/>
+    <line x1="-6" y1="-50" x2="6" y2="-50" stroke="#4a6070" stroke-width="0.8"/>
+    <text x="0" y="-82" fill="#58a6ff" font-size="10" text-anchor="middle" font-weight="bold">THREADOLET</text>
+    <text x="0" y="-94" fill="#8b949e" font-size="8" text-anchor="middle">Roscado</text>
+    <text x="0" y="148" fill="#58a6ff" font-size="9" text-anchor="middle">Baja presión</text>
+  </g>
+</svg>`,
+  vizLabel:"Los 3 tipos de O-Let conectando ramas al header — cada uno para una presión diferente",
+  why:"Para conectar una tubería secundaria a la principal, necesitas un fitting especial que mantenga la integridad del sistema. Los O-Lets existen en 3 tipos porque hay 3 formas de soldar tuberías, cada una para un rango de presión diferente.",
+  good:"Sistema de vapor a 600 PSI → Weldolet con soldadura butt weld. La unión es tan fuerte como el tubo mismo — aguanta presión extrema sin fugas.",
+  bad:"Threadolet en sistema de vapor a 600 PSI. El calor y la vibración aflojan la rosca con el tiempo → fuga de vapor a alta presión → accidente grave.",
+  content:`<table class="mini-table"><thead><tr><th>Tipo</th><th>Unión</th><th>Presión</th></tr></thead><tbody>
+    <tr><td>Weldolet</td><td>Butt weld (soldadura a tope)</td><td>Alta — vapor, petróleo</td></tr>
+    <tr><td>Sockolet</td><td>Socket weld (enchufe soldado)</td><td>Media — agua, instrumentos</td></tr>
+    <tr><td>Threadolet</td><td>Roscado (threaded)</td><td>Baja — instrumentación</td></tr>
+  </tbody></table>`
+},
+
+{
+  tag:"TEMA 6", title:"Bridas (Flanges)",
+  subtitle:"Clases de presión — por qué NO son intercambiables",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(60,30)">
+    <text x="60" y="12" fill="#58a6ff" font-size="11" text-anchor="middle" font-weight="bold">150# — Baja presión</text>
+    <rect x="50" y="20" width="20" height="60" rx="2" fill="#2a4050" stroke="#4a6070"/>
+    <rect x="40" y="75" width="40" height="25" rx="2" fill="#2a4050" stroke="#4a6070" stroke-width="1.5"/>
+    <rect x="20" y="100" width="80" height="16" rx="2" fill="#3a5060" stroke="#4a7090" stroke-width="1.5"/>
+    <rect x="36" y="100" width="48" height="6" rx="1" fill="#4a6870" stroke="#5a8090"/>
+    <text x="60" y="130" fill="#56d364" font-size="8" text-anchor="middle">Cara levantada (RF)</text>
+    <rect x="36" y="106" width="48" height="2" fill="#e3b341" opacity="0.7"/>
+    <rect x="25" y="155" width="70" height="22" rx="4" fill="rgba(86,211,100,0.1)" stroke="#56d364"/>
+    <text x="60" y="170" fill="#56d364" font-size="10" text-anchor="middle">~285 PSI MAX</text>
+  </g>
+  <g transform="translate(250,30)">
+    <text x="60" y="12" fill="#ff7b72" font-size="11" text-anchor="middle" font-weight="bold">300# — Media presión</text>
+    <rect x="48" y="20" width="24" height="60" rx="2" fill="#2a4050" stroke="#4a6070"/>
+    <rect x="36" y="75" width="48" height="30" rx="2" fill="#2a4050" stroke="#4a6070" stroke-width="2"/>
+    <rect x="12" y="105" width="96" height="20" rx="2" fill="#3a5060" stroke="#4a7090" stroke-width="2"/>
+    <rect x="34" y="105" width="52" height="7" rx="1" fill="#4a6870" stroke="#5a8090"/>
+    <rect x="20" y="155" width="80" height="22" rx="4" fill="rgba(255,123,114,0.1)" stroke="#ff7b72"/>
+    <text x="60" y="170" fill="#ff7b72" font-size="10" text-anchor="middle">~740 PSI MAX</text>
+  </g>
+  <rect x="30" y="205" width="360" height="42" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="210" y="222" fill="#8b949e" font-size="10" text-anchor="middle">Regla: A MAYOR CLASE → MÁS GRUESA + MÁS PERNOS</text>
+  <text x="80"  y="240" fill="#56d364" font-size="9" text-anchor="middle">150# ≈ 285 PSI</text>
+  <text x="180" y="240" fill="#e3b341" font-size="9" text-anchor="middle">300# ≈ 740 PSI</text>
+  <text x="280" y="240" fill="#ff7b72" font-size="9" text-anchor="middle">600# ≈ 1480 PSI</text>
+  <text x="370" y="240" fill="#ff4040" font-size="9" text-anchor="middle">900# ≈ 2220 PSI</text>
+</svg>`,
+  vizLabel:"150# (delgada, menos pernos) vs 300# (más gruesa, más pernos) — NUNCA intercambiarlas",
+  why:"La clase de la brida determina cuánta presión puede soportar. Una brida 150# aguanta ~285 PSI. Si la usas en un sistema de 500 PSI, la brida cede y el fluido sale disparado. Más número = pared más gruesa + más pernos = más resistencia.",
+  good:"Sistema de agua a 100 PSI → bridas 150# → más que suficiente, económicas y ligeras. Sistema de vapor a 400 PSI → bridas 300# → seguro.",
+  bad:"Sistema de vapor a 500 PSI con bridas 150# (aguantan 285 PSI). A 500 PSI la brida cede → explosión → accidente mortal.",
+  content:`<table class="mini-table"><thead><tr><th>Tipo</th><th>Siglas</th><th>Cara</th><th>Uso típico</th></tr></thead><tbody>
+    <tr><td>Welding Neck Raised Face</td><td>WNRF</td><td>Levantada 1/16"</td><td>Más común — acero con acero</td></tr>
+    <tr><td>Welding Neck Flat Face</td><td>WNFF</td><td>Plana</td><td>Fierro fundido (frágil)</td></tr>
+    <tr><td>Slip-On Flange</td><td>SOF</td><td>Cualquiera</td><td>Alineación fácil, baja presión</td></tr>
+  </tbody></table>`
+},
+
+{
+  tag:"TEMA 7", title:"Fórmulas de Offsets",
+  subtitle:"Cómo calcular el tubo diagonal cuando hay que esquivar un obstáculo",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <rect x="160" y="50" width="100" height="28" rx="3" fill="#3a2a1a" stroke="#6a4a2a" stroke-width="2"/>
+  <text x="210" y="68" fill="#8b6a4a" font-size="9" text-anchor="middle">OBSTÁCULO</text>
+  <line x1="30" y1="140" x2="390" y2="140" stroke="#30363d" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="210" y="134" fill="#30363d" font-size="9" text-anchor="middle">Línea original (bloqueada)</text>
+  <rect x="30" y="128" width="120" height="24" rx="3" fill="#2a4050" stroke="#4a6070" stroke-width="1.5"/>
+  <line x1="150" y1="140" x2="270" y2="78" stroke="#4a6070" stroke-width="20" stroke-linecap="round"/>
+  <line x1="150" y1="140" x2="270" y2="78" stroke="#2a4050" stroke-width="16" stroke-linecap="round"/>
+  <line x1="155" y1="137" x2="265" y2="81" stroke="#1a7aff" stroke-width="3" opacity="0.5" stroke-dasharray="10,5" class="flow-line"/>
+  <rect x="270" y="66" width="120" height="24" rx="3" fill="#2a4050" stroke="#4a6070" stroke-width="1.5"/>
+  <line x1="130" y1="78" x2="130" y2="140" stroke="#56d364" stroke-width="1.5" marker-start="url(#aGX)" marker-end="url(#aGX)"/>
+  <text x="114" y="112" fill="#56d364" font-size="10" text-anchor="middle">OFFSET</text>
+  <text x="114" y="124" fill="#56d364" font-size="10" text-anchor="middle">= 12"</text>
+  <text x="232" y="150" fill="#e3b341" font-size="10" text-anchor="middle">TRAVEL</text>
+  <text x="232" y="163" fill="#e3b341" font-size="10" text-anchor="middle">= 12×1.414</text>
+  <text x="232" y="177" fill="#e3b341" font-size="11" text-anchor="middle" font-weight="bold">≈ 17"</text>
+  <rect x="278" y="180" width="130" height="60" rx="8" fill="rgba(211,153,34,0.1)" stroke="#e3b341" stroke-width="1"/>
+  <text x="343" y="200" fill="#e3b341" font-size="10" text-anchor="middle" font-weight="bold">FÓRMULA</text>
+  <text x="343" y="216" fill="#e3b341" font-size="10" text-anchor="middle">Travel = Offset</text>
+  <text x="343" y="230" fill="#e3b341" font-size="10" text-anchor="middle">× 1.414 (=√2)</text>
+  <defs><marker id="aGX" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#56d364"/></marker></defs>
+</svg>`,
+  vizLabel:"Offset a 45° — el tubo diagonal (Travel) usa el factor 1.414 (= √2) para calcularse",
+  why:"Cuando una tubería debe esquivar un obstáculo usa dos codos de 45° y un tramo diagonal. La longitud del tramo diagonal viene del teorema de Pitágoras: en un triángulo a 45°, la hipotenusa = cateto × √2 = cateto × 1.414.",
+  good:"Offset=12\". Travel = 12×1.414 = 16.97\" ≈ 17\". Cortas el tubo diagonal a 17\" → los codos de 45° encajan perfectamente esquivando el obstáculo.",
+  bad:"Se corta el tubo diagonal a 12\" (sin multiplicar). El tubo queda 5\" corto → los codos no alinean → hay que rehacer todo desde cero — tiempo y material perdido.",
+  content:`<div class="formula-chip">Travel = Offset × 1.414 | Offset = Travel ÷ 1.414</div>
+  <table class="mini-table"><thead><tr><th>Dado</th><th>Buscas</th><th>Cálculo</th></tr></thead><tbody>
+    <tr><td>Offset = 12"</td><td>Travel</td><td>12 × 1.414 = 16.97"</td></tr>
+    <tr><td>Travel = 17"</td><td>Offset</td><td>17 ÷ 1.414 = 12.02"</td></tr>
+    <tr><td>Travel conocido</td><td>Advance</td><td>Travel × 0.707</td></tr>
+  </tbody></table>`
+},
+
+{
+  tag:"TEMA 8", title:"Planos Isométricos y Símbolos de Válvulas",
+  subtitle:"Cómo leer el mapa 3D de una tubería y reconocer cada válvula",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <line x1="100" y1="180" x2="220" y2="120" stroke="#4a6070" stroke-width="18" stroke-linecap="round"/>
+  <line x1="100" y1="180" x2="220" y2="120" stroke="#2a4050" stroke-width="14" stroke-linecap="round"/>
+  <line x1="104" y1="178" x2="217" y2="122" stroke="#1a7aff" stroke-width="3" opacity="0.5" stroke-dasharray="10,5" class="flow-line"/>
+  <line x1="220" y1="120" x2="220" y2="40" stroke="#4a6070" stroke-width="18" stroke-linecap="round"/>
+  <line x1="220" y1="120" x2="220" y2="40" stroke="#2a4050" stroke-width="14" stroke-linecap="round"/>
+  <line x1="220" y1="40" x2="220" y2="10" stroke="#56d364" stroke-width="1.5" marker-end="url(#aUp)"/>
+  <text x="238" y="28" fill="#56d364" font-size="10" font-weight="bold">UP ↑</text>
+  <text x="238" y="40" fill="#8b949e" font-size="8">VERTICAL</text>
+  <text x="238" y="52" fill="#8b949e" font-size="8">= va ARRIBA</text>
+  <line x1="220" y1="40" x2="340" y2="40" stroke="#4a6070" stroke-width="18" stroke-linecap="round"/>
+  <line x1="220" y1="40" x2="340" y2="40" stroke="#2a4050" stroke-width="14" stroke-linecap="round"/>
+  <g transform="translate(280,40)">
+    <polygon points="-10,-12 10,-12 0,0" fill="#e3b341" opacity="0.8"/>
+    <polygon points="-10,12 10,12 0,0" fill="#e3b341" opacity="0.8"/>
+    <line x1="-12" y1="0" x2="12" y2="0" stroke="#e3b341" stroke-width="2"/>
+    <text x="0" y="-18" fill="#e3b341" font-size="8" text-anchor="middle">GATE</text>
+  </g>
+  <line x1="340" y1="40" x2="340" y2="150" stroke="#4a6070" stroke-width="18" stroke-linecap="round"/>
+  <line x1="340" y1="40" x2="340" y2="150" stroke="#2a4050" stroke-width="14" stroke-linecap="round"/>
+  <rect x="20" y="195" width="380" height="55" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="210" y="213" fill="#58a6ff" font-size="10" text-anchor="middle" font-weight="bold">SÍMBOLOS EN PLANO ISOMÉTRICO</text>
+  <text x="50"  y="232" fill="#e3b341" font-size="10">⋈</text><text x="65"  y="232" fill="#8b949e" font-size="9">Gate Valve — aislamiento total</text>
+  <text x="50"  y="246" fill="#56d364" font-size="9">▷─</text><text x="68"  y="246" fill="#8b949e" font-size="9">Check Valve — una dirección</text>
+  <text x="230" y="232" fill="#58a6ff" font-size="9">⊗</text><text x="244" y="232" fill="#8b949e" font-size="9">Globe Valve — control flujo</text>
+  <text x="230" y="246" fill="#ff7b72" font-size="9">⋈●</text><text x="250" y="246" fill="#8b949e" font-size="9">Control Valve — automático</text>
+  <defs><marker id="aUp" markerWidth="6" markerHeight="6" refX="3" refY="6" orient="auto"><path d="M0,6 L3,0 L6,6 Z" fill="#56d364"/></marker></defs>
+</svg>`,
+  vizLabel:"Isométrico 3D — las líneas VERTICALES del dibujo representan dirección ARRIBA/ABAJO en la realidad",
+  why:"Un plano isométrico muestra todo el sistema en UNA sola hoja en perspectiva 3D. La regla más importante: las líneas VERTICALES del dibujo siempre representan la dirección real arriba/abajo. Confundirlas con horizontal causa que el sistema no drene y genere golpes de ariete.",
+  good:"Ves línea vertical subiendo en el iso → instalas el tubo hacia arriba con soportes → el condensado drena por gravedad → sistema correcto.",
+  bad:"Confundes la línea vertical del iso con horizontal → instalas el tubo en dirección equivocada → el condensado no drena → se acumula → golpe de ariete → rotura de tubería.",
+  content:`<table class="mini-table"><thead><tr><th>Símbolo</th><th>Válvula</th><th>Uso principal</th></tr></thead><tbody>
+    <tr><td>⋈ (bow-tie)</td><td>GATE VALVE</td><td>Aislamiento total ON/OFF</td></tr>
+    <tr><td>▷→</td><td>CHECK VALVE</td><td>Solo permite flujo en una dirección</td></tr>
+    <tr><td>⊗</td><td>GLOBE VALVE</td><td>Control y regulación de flujo</td></tr>
+    <tr><td>⋈ + actuador</td><td>CONTROL VALVE</td><td>Control automático del sistema</td></tr>
+  </tbody></table>`
+},
+
+{
+  tag:"TEMA 9", title:"Propiedades del Agua y Presión",
+  subtitle:"Los números que todo pipefitter debe saber de memoria",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <rect x="160" y="20" width="100" height="130" rx="4" fill="#1a2a3a" stroke="#2a4a5a" stroke-width="2"/>
+  <rect x="162" y="70" width="96" height="78" rx="2" fill="rgba(26,122,255,0.3)"/>
+  <path d="M162,70 Q180,66 200,70 Q220,74 238,70 Q256,66 258,70" fill="none" stroke="#58a6ff" stroke-width="1.5" opacity="0.6"/>
+  <line x1="280" y1="70" x2="280" y2="148" stroke="#56d364" stroke-width="1.5" marker-start="url(#aGP)" marker-end="url(#aGP)"/>
+  <text x="296" y="112" fill="#56d364" font-size="10">H = 10 ft</text>
+  <rect x="130" y="150" width="160" height="36" rx="4" fill="#1a2a3a" stroke="#4a6070" stroke-width="1.5"/>
+  <text x="210" y="173" fill="#58a6ff" font-size="10" text-anchor="middle">P = 10 × 0.433 = 4.33 PSI</text>
+  <rect x="20" y="20" width="125" height="100" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="82" y="38" fill="#58a6ff" font-size="9" text-anchor="middle" font-weight="bold">MEMORIZAR</text>
+  <text x="30" y="55" fill="#e3b341" font-size="10" font-weight="bold">0.433</text><text x="75" y="55" fill="#8b949e" font-size="9">PSI/pie</text>
+  <text x="30" y="70" fill="#e3b341" font-size="10" font-weight="bold">8.33</text> <text x="68" y="70" fill="#8b949e" font-size="9">lbs/gal</text>
+  <text x="30" y="85" fill="#e3b341" font-size="10" font-weight="bold">62.4</text> <text x="68" y="85" fill="#8b949e" font-size="9">lbs/ft³</text>
+  <text x="30" y="100" fill="#e3b341" font-size="10" font-weight="bold">14.7</text> <text x="68" y="100" fill="#8b949e" font-size="9">PSIA atm</text>
+  <text x="30" y="115" fill="#e3b341" font-size="10" font-weight="bold">1700×</text><text x="78" y="115" fill="#8b949e" font-size="9">agua→vapor</text>
+  <rect x="20" y="135" width="125" height="90" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="82" y="152" fill="#ff7b72" font-size="9" text-anchor="middle" font-weight="bold">AGUA→VAPOR</text>
+  <ellipse cx="45" cy="185" rx="12" ry="14" fill="rgba(26,122,255,0.4)" stroke="#58a6ff"/>
+  <text x="45" y="189" fill="#58a6ff" font-size="8" text-anchor="middle">1x</text>
+  <text x="72" y="189" fill="#8b949e" font-size="14">→</text>
+  <ellipse cx="105" cy="185" rx="24" ry="18" fill="rgba(255,123,114,0.15)" stroke="#ff7b72" stroke-width="1" class="pulse-dot"/>
+  <text x="105" y="189" fill="#ff7b72" font-size="9" text-anchor="middle" font-weight="bold">1700x</text>
+  <text x="82" y="215" fill="#ff7b72" font-size="8" text-anchor="middle">→ WATER HAMMER</text>
+  <text x="82" y="227" fill="#8b949e" font-size="7" text-anchor="middle">si no hay steam trap</text>
+  <defs><marker id="aGP" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#56d364"/></marker></defs>
+</svg>`,
+  vizLabel:"Tanque de 10 pies genera 4.33 PSI en la base — el vapor se expande 1,700 veces",
+  why:"Trabajas con agua y vapor todo el tiempo. Si no sabes cuánto pesa el agua o cuánta presión ejerce una columna, no puedes elegir las tuberías correctas. El agua al convertirse en vapor se expande 1,700 veces — eso explica la fuerza destructiva del golpe de ariete.",
+  good:"Tanque a 50 pies: 50×0.433 = 21.65 PSI. Eliges tuberías que aguanten más de 22 PSI con margen de seguridad → sistema confiable.",
+  bad:"Tanque a 50 pies con tuberías de 15 PSI máximo. 50×0.433 = 21.65 PSI → supera capacidad → las tuberías revientan.",
+  content:`<div class="formula-chip">Presión (PSI) = Altura (pies) × 0.433</div>
+  <div class="data-grid">
+    <div class="data-cell"><div class="val">0.433</div><div class="lbl">PSI por pie de agua</div></div>
+    <div class="data-cell"><div class="val">8.33</div><div class="lbl">lbs por galón de agua</div></div>
+    <div class="data-cell"><div class="val">62.4</div><div class="lbl">lbs por pie³ de agua</div></div>
+    <div class="data-cell"><div class="val">14.7</div><div class="lbl">PSIA presión atmosférica</div></div>
+    <div class="data-cell"><div class="val">1,700×</div><div class="lbl">expansión agua→vapor</div></div>
+    <div class="data-cell"><div class="val">7.0</div><div class="lbl">pH neutro del agua</div></div>
+  </div>`
+},
+
+{
+  tag:"TEMA 10", title:"Seguridad OSHA",
+  subtitle:"Las reglas que protegen tu vida — y están en el examen",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <line x1="100" y1="40" x2="100" y2="220" stroke="#4a6070" stroke-width="4"/>
+  <line x1="200" y1="40" x2="200" y2="220" stroke="#4a6070" stroke-width="4"/>
+  <line x1="90" y1="120" x2="210" y2="120" stroke="#4a6070" stroke-width="8"/>
+  <line x1="90" y1="155" x2="210" y2="155" stroke="#4a6070" stroke-width="3"/>
+  <line x1="100" y1="40" x2="200" y2="120" stroke="#4a6070" stroke-width="2"/>
+  <line x1="200" y1="40" x2="100" y2="120" stroke="#4a6070" stroke-width="2"/>
+  <text x="150" y="88" fill="#ff7b72" font-size="22" text-anchor="middle" font-weight="bold">✗</text>
+  <text x="150" y="104" fill="#ff7b72" font-size="8" text-anchor="middle">NO escalar cruces</text>
+  <g transform="translate(150,108)">
+    <ellipse cx="0" cy="-18" rx="8" ry="8" fill="#4a7090"/>
+    <line x1="0" y1="-10" x2="0" y2="10" stroke="#4a7090" stroke-width="5"/>
+    <path d="M-8,-5 L-12,8 M8,-5 L12,8 M-12,8 L12,8" stroke="#56d364" stroke-width="2" fill="none"/>
+    <path d="M-8,-5 L8,-5" stroke="#56d364" stroke-width="2"/>
+    <circle cx="0" cy="-1" r="3" fill="none" stroke="#56d364" stroke-width="2"/>
+    <line x1="0" y1="-1" x2="0" y2="-35" stroke="#e3b341" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <circle cx="0" cy="-35" r="4" fill="#e3b341"/>
+  </g>
+  <rect x="240" y="30" width="170" height="210" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="325" y="50" fill="#58a6ff" font-size="10" text-anchor="middle" font-weight="bold">REGLAS OSHA</text>
+  <text x="254" y="72" fill="#ff7b72" font-size="9">❌</text><text x="266" y="72" fill="#8b949e" font-size="9">Body belts PROHIBIDOS</text>
+  <text x="266" y="82" fill="#8b949e" font-size="8">  como arresto de caída</text>
+  <text x="254" y="100" fill="#56d364" font-size="9">✅</text><text x="266" y="100" fill="#8b949e" font-size="9">Arnés completo (harness)</text>
+  <text x="254" y="120" fill="#ff7b72" font-size="9">❌</text><text x="266" y="120" fill="#8b949e" font-size="9">Escalar cross braces</text>
+  <text x="254" y="140" fill="#56d364" font-size="9">✅</text><text x="266" y="140" fill="#8b949e" font-size="9">Acceso aprobado</text>
+  <rect x="252" y="152" width="148" height="30" rx="4" fill="rgba(31,111,235,0.1)" stroke="#30363d"/>
+  <text x="326" y="166" fill="#e3b341" font-size="9" text-anchor="middle" font-weight="bold">Grúa a cable 50kV:</text>
+  <text x="326" y="178" fill="#e3b341" font-size="9" text-anchor="middle">Mínimo 10 pies</text>
+  <rect x="252" y="188" width="148" height="40" rx="4" fill="rgba(86,211,100,0.08)" stroke="#30363d"/>
+  <text x="326" y="203" fill="#56d364" font-size="9" text-anchor="middle">¿Quién designa persona</text>
+  <text x="326" y="215" fill="#56d364" font-size="9" text-anchor="middle">competente?</text>
+  <text x="326" y="227" fill="#e3b341" font-size="9" text-anchor="middle" font-weight="bold">→ EL EMPLOYER</text>
+</svg>`,
+  vizLabel:"Arnés completo (verde) vs body belt (prohibido) — diferencia entre sobrevivir y lesionarse gravemente",
+  why:"En alturas, un cinturón (body belt) concentra TODA la fuerza de una caída en tu cintura — causa lesión interna grave o muerte. El arnés distribuye esa fuerza en hombros, caderas y piernas — tus partes más fuertes. Por eso la OSHA prohíbe totalmente los body belts como sistema de arresto.",
+  good:"Arnés completo anclado al punto aprobado. Al caer, el impacto se distribuye en todo el cuerpo → sobrevives sin lesiones graves → puedes seguir trabajando.",
+  bad:"Body belt como sistema de arresto. Toda la fuerza en la cintura → lesión interna grave o muerte. ADEMÁS es ILEGAL según OSHA — te pueden multar aunque no te lesiones.",
+  content:`<table class="mini-table"><thead><tr><th>Pregunta</th><th>Respuesta correcta</th></tr></thead><tbody>
+    <tr><td>NO aceptable en sistema de arresto de caída</td><td>Body belts (cinturones)</td></tr>
+    <tr><td>Acceso PROHIBIDO al andamio</td><td>Escalar cross braces</td></tr>
+    <tr><td>Distancia mínima a cable energizado 50kV</td><td>10 pies mínimo</td></tr>
+    <tr><td>¿Quién designa persona competente?</td><td>El Employer (empleador)</td></tr>
+    <tr><td>Escalera con defectos visibles</td><td>Etiquetar y retirar del servicio</td></tr>
+  </tbody></table>`
+},
+
+{
+  tag:"TEMA 11", title:"Rigging y Nudos",
+  subtitle:"Bowline Knot — el rey de los nudos para izaje seguro",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <path d="M210,15 L210,45 Q210,65 195,65 Q180,65 180,80 Q180,95 195,95 L225,95" fill="none" stroke="#8b949e" stroke-width="5" stroke-linecap="round"/>
+  <text x="245" y="72" fill="#8b949e" font-size="9">Gancho grúa</text>
+  <g transform="translate(140,90)">
+    <ellipse cx="40" cy="50" rx="35" ry="28" fill="none" stroke="#56d364" stroke-width="4" stroke-linecap="round"/>
+    <ellipse cx="40" cy="50" rx="14" ry="10" fill="none" stroke="#56d364" stroke-width="2" stroke-dasharray="3,2"/>
+    <path d="M40,40 L40,10" stroke="#56d364" stroke-width="3"/>
+    <path d="M40,10 L10,10 L10,40 L40,40" stroke="#56d364" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M10,40 L10,70" stroke="#56d364" stroke-width="3"/>
+    <text x="55" y="52" fill="#56d364" font-size="9">LOOP FIJO</text>
+    <text x="55" y="64" fill="#56d364" font-size="9">(no se aprieta)</text>
+    <text x="-5" y="92" fill="#8b949e" font-size="9">BOWLINE KNOT</text>
+  </g>
+  <rect x="255" y="130" width="120" height="26" rx="8" fill="#2a4050" stroke="#4a6070" stroke-width="2"/>
+  <rect x="255" y="132" width="120" height="8" rx="4" fill="rgba(184,207,224,0.12)"/>
+  <path d="M255,143 Q285,170 315,143" fill="none" stroke="#e3b341" stroke-width="3"/>
+  <line x1="285" y1="170" x2="285" y2="130" stroke="#e3b341" stroke-width="2"/>
+  <text x="320" y="165" fill="#e3b341" font-size="8">Loop del</text>
+  <text x="320" y="177" fill="#e3b341" font-size="8">Bowline</text>
+  <rect x="20" y="185" width="210" height="62" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="125" y="202" fill="#58a6ff" font-size="10" text-anchor="middle" font-weight="bold">SEÑALES DE MANO</text>
+  <text x="35" y="218" fill="#e3b341" font-size="10">👍</text><text x="52" y="218" fill="#8b949e" font-size="9">Boom UP</text>
+  <text x="35" y="232" fill="#e3b341" font-size="10">👎</text><text x="52" y="232" fill="#8b949e" font-size="9">Boom DOWN</text>
+  <text x="35" y="246" fill="#e3b341" font-size="10">✋✋</text><text x="58" y="246" fill="#8b949e" font-size="9">Travel Forward</text>
+</svg>`,
+  vizLabel:"Bowline Knot — el loop verde no se aprieta con el peso y se deshace fácilmente",
+  why:"Al izar tubería necesitas un loop que NO se apriete con el peso. Si el nudo se aprieta, la tubería queda 'prisionera' y hay que cortarla para liberarla. El Bowline forma un loop FIJO que mantiene su tamaño sin importar la carga — por eso es el nudo más útil en rigging.",
+  good:"Bowline Knot alrededor del tubo. Con 500 lbs de peso el loop sigue igual de grande. Al terminar, se deshace con un jalón — rápido y sin esfuerzo.",
+  bad:"Nudo corredizo simple para izar. Con el peso el nudo se aprieta más y más → el tubo queda atrapado → hay que cortar el nudo o el tubo para liberarlo → material dañado.",
+  content:`<table class="mini-table"><thead><tr><th>Señal</th><th>Significado</th></tr></thead><tbody>
+    <tr><td>👍 Puño, pulgar arriba</td><td>Boom Up (sube la pluma)</td></tr>
+    <tr><td>👎 Puño, pulgar abajo</td><td>Boom Down (baja la pluma)</td></tr>
+    <tr><td>✋✋ Palmas abiertas afuera</td><td>Travel Forward (avanza)</td></tr>
+    <tr><td>☝️ Índice arriba girando</td><td>Hoist (iza la carga)</td></tr>
+    <tr><td>✊ Puño cerrado inmóvil</td><td>STOP — para todo de inmediato</td></tr>
+  </tbody></table>`
+},
+
+{
+  tag:"TEMA 12", title:"Conversión Fahrenheit / Celsius",
+  subtitle:"Por qué leer la temperatura incorrecta puede destruir un sistema",
+  viz:`
+<svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+  <rect x="185" y="20" width="40" height="150" rx="20" fill="#1c2a36" stroke="#4a6070" stroke-width="2"/>
+  <circle cx="205" cy="190" r="22" fill="#1c2a36" stroke="#4a6070" stroke-width="2"/>
+  <rect x="193" y="100" width="24" height="72" rx="0" fill="#ff4040" opacity="0.8"/>
+  <circle cx="205" cy="190" r="16" fill="#ff4040" opacity="0.9" class="pulse-dot"/>
+  <text x="175" y="38"  fill="#ff7b72" font-size="9" text-anchor="end">212°F</text>
+  <text x="175" y="88"  fill="#e3b341" font-size="9" text-anchor="end">150°F</text>
+  <text x="175" y="138" fill="#58a6ff" font-size="9" text-anchor="end">32°F</text>
+  <text x="175" y="188" fill="#8b949e" font-size="9" text-anchor="end">−40°F</text>
+  <text x="232" y="38"  fill="#ff7b72" font-size="9">100°C</text>
+  <text x="232" y="88"  fill="#e3b341" font-size="9">65°C</text>
+  <text x="232" y="138" fill="#58a6ff" font-size="9">0°C</text>
+  <text x="232" y="188" fill="#8b949e" font-size="9">−40°C</text>
+  <rect x="140" y="176" width="130" height="18" rx="4" fill="rgba(86,211,100,0.15)" stroke="#56d364" stroke-width="1"/>
+  <text x="205" y="188" fill="#56d364" font-size="9" text-anchor="middle">−40°F = −40°C ← únicos iguales</text>
+  <rect x="20" y="20" width="150" height="55" rx="8" fill="rgba(31,111,235,0.1)" stroke="#1f6feb"/>
+  <text x="95" y="38" fill="#58a6ff" font-size="9" text-anchor="middle" font-weight="bold">FÓRMULA</text>
+  <text x="95" y="54" fill="#e3b341" font-size="10" text-anchor="middle">°C=(°F−32)÷1.8</text>
+  <text x="95" y="68" fill="#e3b341" font-size="10" text-anchor="middle">°F=(°C×1.8)+32</text>
+  <rect x="20" y="100" width="150" height="120" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="95" y="118" fill="#58a6ff" font-size="9" text-anchor="middle" font-weight="bold">EJEMPLOS</text>
+  <text x="30" y="136" fill="#8b949e" font-size="8">212°F→</text><text x="74" y="136" fill="#e3b341" font-size="8">(212−32)÷1.8=100°C</text>
+  <text x="30" y="152" fill="#8b949e" font-size="8">32°F→</text><text x="66" y="152" fill="#58a6ff" font-size="8">(32−32)÷1.8=0°C</text>
+  <text x="30" y="168" fill="#8b949e" font-size="8">−40°F→</text><text x="74" y="168" fill="#56d364" font-size="8">(−40−32)÷1.8=−40°C</text>
+  <text x="95" y="190" fill="#56d364" font-size="8" text-anchor="middle">¡El único punto igual!</text>
+  <text x="95" y="205" fill="#ff7b72" font-size="8" text-anchor="middle">Juntas goma → se quiebran</text>
+  <text x="95" y="218" fill="#8b949e" font-size="8" text-anchor="middle">a −40° necesitas metal</text>
+</svg>`,
+  vizLabel:"Escala F vs C — el único punto donde se cruzan es −40°. Muy importante para materiales criogénicos.",
+  why:"Equipos europeos usan Celsius, americanos Fahrenheit. Si no conviertes y piensas que −40°F es temperatura moderada ('40 no parece mucho'), instalas materiales que se destruyen. A −40°F las juntas de goma se vuelven frágiles como vidrio.",
+  good:"Plano dice '−40°F'. Conviertes: (−40−32)÷1.8 = −40°C. Sabes que necesitas juntas metálicas especiales para criogénico → el sistema no fuga.",
+  bad:"No conviertes. Asumes que −40°F es fría pero manejable. Instalas juntas de goma estándar → se quiebran al primer arranque → fuga.",
+  content:`<div class="formula-chip">°C = (°F − 32) ÷ 1.8 | °F = (°C × 1.8) + 32</div>
+  <table class="mini-table"><thead><tr><th>°F</th><th>°C</th><th>Dato importante</th></tr></thead><tbody>
+    <tr><td>−40°F</td><td>−40°C</td><td>Único punto donde F y C son iguales</td></tr>
+    <tr><td>32°F</td><td>0°C</td><td>Congelación del agua</td></tr>
+    <tr><td>212°F</td><td>100°C</td><td>Ebullición del agua</td></tr>
+  </tbody></table>`
+},
+
+{
+  tag:"TEMA 13", title:"Ventaja Mecánica",
+  subtitle:"Cómo mover cargas pesadas con poco esfuerzo — y por qué calcularla mal es peligroso",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="420" height="16" fill="#2a3a4a" stroke="#4a6070" stroke-width="1"/>
+  <rect x="170" y="16" width="80" height="26" rx="6" fill="#2a4050" stroke="#4a7090" stroke-width="2"/>
+  <circle cx="190" cy="29" r="7" fill="#1c2a36" stroke="#4a6070" stroke-width="1.5"/>
+  <circle cx="210" cy="29" r="7" fill="#1c2a36" stroke="#4a6070" stroke-width="1.5"/>
+  <circle cx="230" cy="29" r="7" fill="#1c2a36" stroke="#4a6070" stroke-width="1.5"/>
+  <rect x="178" y="130" width="64" height="22" rx="6" fill="#3a5060" stroke="#4a7090" stroke-width="2"/>
+  <circle cx="196" cy="141" r="6" fill="#1c2a36" stroke="#4a6070" stroke-width="1.5"/>
+  <circle cx="216" cy="141" r="6" fill="#1c2a36" stroke="#4a6070" stroke-width="1.5"/>
+  <line x1="190" y1="42" x2="190" y2="130" stroke="#e3b341" stroke-width="2"/>
+  <line x1="196" y1="152" x2="196" y2="42" stroke="#e3b341" stroke-width="2" stroke-dasharray="4,2"/>
+  <line x1="210" y1="42" x2="210" y2="130" stroke="#e3b341" stroke-width="2"/>
+  <line x1="216" y1="152" x2="216" y2="42" stroke="#e3b341" stroke-width="2" stroke-dasharray="4,2"/>
+  <line x1="230" y1="42" x2="230" y2="152" stroke="#e3b341" stroke-width="2"/>
+  <line x1="230" y1="152" x2="320" y2="152" stroke="#e3b341" stroke-width="2"/>
+  <line x1="320" y1="152" x2="320" y2="190" stroke="#e3b341" stroke-width="2"/>
+  <rect x="155" y="162" width="110" height="26" rx="4" fill="#2a4050" stroke="#4a6070" stroke-width="2"/>
+  <rect x="155" y="164" width="110" height="7" rx="2" fill="rgba(184,207,224,0.12)"/>
+  <line x1="210" y1="188" x2="210" y2="218" stroke="#ff7b72" stroke-width="2" marker-end="url(#aDn)"/>
+  <text x="210" y="235" fill="#ff7b72" font-size="10" text-anchor="middle" font-weight="bold">CARGA: 100 lbs</text>
+  <line x1="320" y1="240" x2="320" y2="210" stroke="#56d364" stroke-width="2" marker-end="url(#aUp2)"/>
+  <text x="320" y="255" fill="#56d364" font-size="10" text-anchor="middle" font-weight="bold">ESFUERZO: 5 lbs</text>
+  <rect x="20" y="50" width="140" height="85" rx="8" fill="rgba(211,153,34,0.1)" stroke="#e3b341"/>
+  <text x="90" y="70" fill="#e3b341" font-size="9" text-anchor="middle" font-weight="bold">VENTAJA MECÁNICA</text>
+  <text x="90" y="90" fill="#e3b341" font-size="12" text-anchor="middle">VM = R ÷ E</text>
+  <text x="90" y="108" fill="#8b949e" font-size="9" text-anchor="middle">100 ÷ 5 = 20</text>
+  <text x="90" y="126" fill="#56d364" font-size="10" text-anchor="middle">Sin unidades: solo "20"</text>
+  <defs>
+    <marker id="aDn" markerWidth="6" markerHeight="6" refX="3" refY="0" orient="auto"><path d="M0,0 L6,0 L3,6 Z" fill="#ff7b72"/></marker>
+    <marker id="aUp2" markerWidth="6" markerHeight="6" refX="3" refY="6" orient="auto"><path d="M0,6 L3,0 L6,6 Z" fill="#56d364"/></marker>
+  </defs>
+</svg>`,
+  vizLabel:"Aparejo de poleas — 5 lbs de esfuerzo levanta 100 lbs de carga (VM = 20, sin unidades)",
+  why:"Un pipefitter mueve tuberías de cientos de libras con aparejos y poleas. La Ventaja Mecánica (VM) te dice cuánto peso puedes levantar con un esfuerzo dado. Si calculas mal y sobrecargas el aparejo, la cadena se rompe y la tubería cae sobre personas. La VM es adimensional — no tiene unidades.",
+  good:"Carga=100 lbs, Esfuerzo=5 lbs → VM = 100÷5 = 20. Con este aparejo mueves 100 lbs con solo 5 lbs. Verificas que el aparejo esté certificado para esa VM → operación segura.",
+  bad:"Se calcula VM=20 pero se intenta levantar 600 lbs con el mismo esfuerzo de 5 lbs. 600÷5=120 ≠ 20 → el aparejo está sobrecargado → falla → la tubería cae → accidente grave.",
+  content:`<div class="formula-chip">VM = Resistencia ÷ Esfuerzo (resultado sin unidades)</div>
+  <div class="tip-box">La respuesta del examen es solo "20", NO "20 lbs" ni "20 ft/lbs". La Ventaja Mecánica es adimensional.</div>`
+},
+
+{
+  tag:"TEMA 14", title:"Transferencia de Calor",
+  subtitle:"Los 3 métodos que debes conocer como pipefitter",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(20,20)">
+    <rect width="110" height="230" rx="8" fill="#161b22" stroke="#30363d"/>
+    <text x="55" y="18" fill="#ff7b72" font-size="10" text-anchor="middle" font-weight="bold">CONDUCCIÓN</text>
+    <rect x="10" y="28" width="90" height="22" rx="4" fill="#7a2020" stroke="#ff4040" stroke-width="2"/>
+    <text x="55" y="43" fill="#ff7b72" font-size="8" text-anchor="middle">TUBO CALIENTE</text>
+    <circle cx="22" cy="75" r="7" fill="#7a2020" stroke="#ff4040" stroke-width="1.5" class="pulse-dot"/>
+    <line x1="29" y1="75" x2="34" y2="75" stroke="#e3b341" stroke-width="1.5" marker-end="url(#ta)"/>
+    <circle cx="40" cy="75" r="7" fill="#5a3020" stroke="#e3b341" stroke-width="1.5"/>
+    <line x1="47" y1="75" x2="52" y2="75" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#tb)"/>
+    <circle cx="58" cy="75" r="7" fill="#2a4050" stroke="#4a6070" stroke-width="1.5"/>
+    <circle cx="76" cy="75" r="7" fill="#1c2a36" stroke="#30363d" stroke-width="1.5"/>
+    <circle cx="94" cy="75" r="7" fill="#1c2a36" stroke="#30363d" stroke-width="1.5"/>
+    <text x="55" y="105" fill="#8b949e" font-size="8" text-anchor="middle">Molécula a molécula</text>
+    <text x="55" y="118" fill="#8b949e" font-size="8" text-anchor="middle">por contacto directo</text>
+    <path d="M25,130 Q55,120 85,130 Q85,155 55,162 Q25,155 25,130" fill="#4a3020" stroke="#8b6a4a" stroke-width="1.5"/>
+    <text x="55" y="182" fill="#e3b341" font-size="7" text-anchor="middle">Tocar tubo=</text>
+    <text x="55" y="193" fill="#e3b341" font-size="7" text-anchor="middle">quemarte</text>
+  </g>
+  <g transform="translate(155,20)">
+    <rect width="110" height="230" rx="8" fill="#161b22" stroke="#30363d"/>
+    <text x="55" y="18" fill="#58a6ff" font-size="10" text-anchor="middle" font-weight="bold">CONVECCIÓN</text>
+    <rect x="10" y="28" width="90" height="130" rx="4" fill="#0d1117" stroke="#30363d"/>
+    <rect x="10" y="143" width="90" height="14" rx="2" fill="#7a2020"/>
+    <text x="55" y="155" fill="#ff7b72" font-size="7" text-anchor="middle">CALOR</text>
+    <line x1="30" y1="138" x2="30" y2="35" stroke="#ff7b72" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7" marker-end="url(#tc)"/>
+    <line x1="55" y1="138" x2="55" y2="35" stroke="#ff7b72" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7" marker-end="url(#tc)"/>
+    <line x1="80" y1="138" x2="80" y2="35" stroke="#ff7b72" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7" marker-end="url(#tc)"/>
+    <line x1="18" y1="33" x2="18" y2="133" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#td)"/>
+    <line x1="92" y1="33" x2="92" y2="133" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#td)"/>
+    <text x="55" y="178" fill="#e3b341" font-size="7" text-anchor="middle">Caliente sube (rojo)</text>
+    <text x="55" y="190" fill="#e3b341" font-size="7" text-anchor="middle">Frío baja (azul)</text>
+  </g>
+  <g transform="translate(290,20)">
+    <rect width="110" height="230" rx="8" fill="#161b22" stroke="#30363d"/>
+    <text x="55" y="18" fill="#e3b341" font-size="10" text-anchor="middle" font-weight="bold">RADIACIÓN</text>
+    <circle cx="55" cy="62" r="22" fill="#7a5a00" stroke="#e3b341" stroke-width="2" class="pulse-dot"/>
+    <text x="55" y="67" fill="#e3b341" font-size="12" text-anchor="middle">☀</text>
+    <rect x="10" y="95" width="90" height="28" rx="4" fill="#0d0d1a" stroke="#30363d" stroke-dasharray="3,2"/>
+    <text x="55" y="113" fill="#30363d" font-size="8" text-anchor="middle">VACÍO</text>
+    <circle cx="55" cy="155" r="12" fill="#4a3020" stroke="#8b6a4a" stroke-width="1.5"/>
+    <text x="55" y="159" fill="#8b6a4a" font-size="10" text-anchor="middle">🙂</text>
+    <text x="55" y="182" fill="#e3b341" font-size="7" text-anchor="middle">Sin contacto,</text>
+    <text x="55" y="193" fill="#8b949e" font-size="7" text-anchor="middle">sin fluido —</text>
+    <text x="55" y="204" fill="#8b949e" font-size="7" text-anchor="middle">ondas electromagnéticas</text>
+  </g>
+  <defs>
+    <marker id="ta" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#e3b341"/></marker>
+    <marker id="tb" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#58a6ff"/></marker>
+    <marker id="tc" markerWidth="4" markerHeight="4" refX="2" refY="4" orient="auto"><path d="M0,4 L2,0 L4,4 Z" fill="#ff7b72"/></marker>
+    <marker id="td" markerWidth="4" markerHeight="4" refX="2" refY="0" orient="auto"><path d="M0,0 L4,0 L2,4 Z" fill="#58a6ff"/></marker>
+  </defs>
+</svg>`,
+  vizLabel:"Conducción (contacto directo), Convección (fluido que circula), Radiación (ondas sin materia)",
+  why:"Como pipefitter trabajas con sistemas de vapor, calefacción y enfriamiento. Si no entiendes cómo se mueve el calor, no puedes aislar correctamente una tubería ni entender por qué el condensado se forma donde se forma.",
+  good:"Aíslas el tubo de vapor con espuma (bloqueas conducción) Y colocas forro metálico exterior (bloqueas convección). Mínima pérdida de calor → sistema eficiente → menor costo operativo.",
+  bad:"Solo pones espuma pero el forro exterior está roto. El aire circula alrededor del tubo (convección) → igual pierdes calor → el sistema trabaja más → ineficiencia y mayor consumo energético.",
+  content:`<table class="mini-table"><thead><tr><th>Método</th><th>Cómo funciona</th><th>Ejemplo práctico</th></tr></thead><tbody>
+    <tr><td>Conducción</td><td>Contacto directo molécula a molécula</td><td>Tocar tubo caliente → quemarte</td></tr>
+    <tr><td>Convección</td><td>Fluido (aire/agua) que se mueve llevando calor</td><td>Aire caliente sube, frío baja</td></tr>
+    <tr><td>Radiación</td><td>Ondas electromagnéticas — no necesita materia</td><td>Calor del sol cruzando el vacío</td></tr>
+  </tbody></table>
+  <div class="tip-box">Respuesta del examen: Conduction, Convection y Radiant — opción A.</div>`
+},
+
+{
+  tag:"TEMA 15", title:"Bombas — Pumps",
+  subtitle:"Cómo funciona y qué la protege — Foot Valve y Strainer",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="200" width="80" height="45" rx="4" fill="#0d1a26" stroke="#2a4a5a" stroke-width="2"/>
+  <text x="60" y="227" fill="#8b949e" font-size="9" text-anchor="middle">FUENTE</text>
+  <rect x="52" y="135" width="16" height="65" rx="3" fill="#2a4050" stroke="#4a6070" stroke-width="1.5"/>
+  <rect x="44" y="197" width="32" height="10" rx="3" fill="#3a5060" stroke="#56d364" stroke-width="2"/>
+  <text x="60" y="206" fill="#56d364" font-size="7" text-anchor="middle">FOOT V.</text>
+  <text x="100" y="210" fill="#56d364" font-size="8">← Foot Valve</text>
+  <text x="100" y="221" fill="#8b949e" font-size="7">Retiene el cebado</text>
+  <rect x="44" y="172" width="32" height="14" rx="3" fill="#2a4050" stroke="#e3b341" stroke-width="2"/>
+  <line x1="46" y1="172" x2="46" y2="186" stroke="#e3b341" stroke-width="0.8"/>
+  <line x1="52" y1="172" x2="52" y2="186" stroke="#e3b341" stroke-width="0.8"/>
+  <line x1="58" y1="172" x2="58" y2="186" stroke="#e3b341" stroke-width="0.8"/>
+  <line x1="64" y1="172" x2="64" y2="186" stroke="#e3b341" stroke-width="0.8"/>
+  <line x1="70" y1="172" x2="70" y2="186" stroke="#e3b341" stroke-width="0.8"/>
+  <text x="100" y="183" fill="#e3b341" font-size="8">← Strainer</text>
+  <g transform="translate(68,152)">
+    <polygon points="0,-7 8,-7 4,0" fill="#2a4050" stroke="#58a6ff" stroke-width="1.5"/>
+    <polygon points="0,7 8,7 4,0" fill="#2a4050" stroke="#58a6ff" stroke-width="1.5"/>
+  </g>
+  <rect x="130" y="130" width="80" height="60" rx="8" fill="#2a4050" stroke="#4a7090" stroke-width="2"/>
+  <circle cx="170" cy="160" r="22" fill="#1c2a36" stroke="#4a6070" stroke-width="1.5"/>
+  <circle cx="170" cy="160" r="14" fill="#2a5060" stroke="#4a7090" stroke-width="1"/>
+  <line x1="170" y1="146" x2="170" y2="174" stroke="#58a6ff" stroke-width="2" opacity="0.7"/>
+  <line x1="156" y1="160" x2="184" y2="160" stroke="#58a6ff" stroke-width="2" opacity="0.7"/>
+  <line x1="160" y1="150" x2="180" y2="170" stroke="#58a6ff" stroke-width="1.5" opacity="0.5"/>
+  <line x1="160" y1="170" x2="180" y2="150" stroke="#58a6ff" stroke-width="1.5" opacity="0.5"/>
+  <text x="170" y="204" fill="#8b949e" font-size="8" text-anchor="middle">BOMBA</text>
+  <rect x="210" y="145" width="100" height="16" rx="3" fill="#2a4050" stroke="#4a6070" stroke-width="1.5"/>
+  <line x1="100" y1="160" x2="132" y2="160" stroke="#1a7aff" stroke-width="3" opacity="0.5" stroke-dasharray="8,4" class="flow-line"/>
+  <line x1="200" y1="153" x2="310" y2="153" stroke="#1a7aff" stroke-width="3" opacity="0.5" stroke-dasharray="8,4" class="flow-line"/>
+  <rect x="20" y="25" width="370" height="90" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="205" y="44" fill="#58a6ff" font-size="10" text-anchor="middle" font-weight="bold">BOMBA APAGADA (OFF) → PRESIONES SE IGUALAN</text>
+  <line x1="30" y1="50" x2="385" y2="50" stroke="#30363d"/>
+  <text x="40" y="68" fill="#8b949e" font-size="9">Si descarga lee 69.5 PSIG ON → al apagarla:</text>
+  <text x="40" y="84" fill="#56d364" font-size="9">Presión succión = Presión descarga = 69.5 PSIG (se igualan)</text>
+  <text x="40" y="100" fill="#e3b341" font-size="9">→ Respuesta examen para presión estática: C. 69.5 PSIG</text>
+</svg>`,
+  vizLabel:"Foot Valve (verde) retiene el cebado — sin él la bomba arranca en seco y se destruye",
+  why:"Una bomba necesita estar llena de líquido ('cebada') para funcionar. Si arranca seca bombea aire, produciendo cavitación — un golpeteo violento que destruye el impeller en minutos. El Foot Valve evita esto reteniendo el agua en la línea cuando la bomba está apagada.",
+  good:"Foot Valve instalado. Cuando la bomba se apaga, el agua NO regresa a la fuente. Al arrancar, siempre hay líquido disponible → no cavita → la bomba dura años sin problemas.",
+  bad:"Sin Foot Valve en succión vertical. La bomba se apaga → toda el agua baja a la fuente. Al arrancar, aspira aire → cavita (ruido como piedras) → impeller destruido en semanas.",
+  content:`<table class="mini-table"><thead><tr><th>Componente</th><th>Posición</th><th>Función</th></tr></thead><tbody>
+    <tr><td>Foot Valve</td><td>Fondo de la succión</td><td>Retiene el cebado cuando la bomba está OFF</td></tr>
+    <tr><td>Strainer</td><td>Línea de succión</td><td>Filtra sólidos que dañarían el impeller</td></tr>
+    <tr><td>Gate Valve</td><td>Succión, antes del strainer</td><td>Aislamiento — TOTALMENTE ABIERTA en operación</td></tr>
+  </tbody></table>
+  <div class="tip-box">Cuando la bomba está OFF, las presiones de succión y descarga se igualan. Si descarga = 69.5 PSIG encendida, toda la red se equilibra a 69.5 PSIG apagada.</div>`
+},
+
+{
+  tag:"TEMA 16", title:"Blueprint Reading",
+  subtitle:"Cómo calcular elevaciones y dimensiones en un plano de edificio",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <rect x="30" y="230" width="360" height="12" fill="#2a3a2a" stroke="#4a6a4a" stroke-width="1"/>
+  <text x="210" y="250" fill="#4a6a4a" font-size="8" text-anchor="middle">ELEV. +28'-6" GROUND FLOOR</text>
+  <rect x="50" y="40" width="16" height="190" fill="#2a3a4a" stroke="#4a5a6a" stroke-width="1.5"/>
+  <rect x="354" y="40" width="16" height="190" fill="#2a3a4a" stroke="#4a5a6a" stroke-width="1.5"/>
+  <rect x="30" y="120" width="360" height="12" fill="#3a4a3a" stroke="#4a6a4a" stroke-width="1.5"/>
+  <text x="395" y="112" fill="#8b949e" font-size="8">2nd FLOOR</text>
+  <rect x="30" y="40" width="360" height="10" fill="#3a4a3a" stroke="#4a6a4a" stroke-width="1.5"/>
+  <rect x="160" y="155" width="100" height="18" rx="4" fill="#2a4050" stroke="#4a7090" stroke-width="2"/>
+  <rect x="160" y="156" width="100" height="6" rx="2" fill="rgba(184,207,224,0.15)"/>
+  <line x1="170" y1="164" x2="250" y2="164" stroke="#1a7aff" stroke-width="2" opacity="0.5" stroke-dasharray="8,4" class="flow-line"/>
+  <text x="210" y="184" fill="#58a6ff" font-size="8" text-anchor="middle">ELEV. 32'-7" TOP OF PIPE</text>
+  <line x1="30" y1="230" x2="30" y2="120" stroke="#56d364" stroke-width="1.5" marker-start="url(#aGA)" marker-end="url(#aGA)"/>
+  <text x="16" y="178" fill="#56d364" font-size="8" text-anchor="middle">A</text>
+  <text x="10" y="192" fill="#56d364" font-size="7" text-anchor="middle">15'-6"</text>
+  <line x1="415" y1="132" x2="415" y2="155" stroke="#e3b341" stroke-width="1.5" marker-start="url(#aAA)" marker-end="url(#aAA)"/>
+  <text x="405" y="147" fill="#e3b341" font-size="8">B</text>
+  <text x="396" y="162" fill="#e3b341" font-size="7">5'-5"</text>
+  <line x1="22" y1="50" x2="22" y2="120" stroke="#58a6ff" stroke-width="1.5" marker-start="url(#aBA)" marker-end="url(#aBA)"/>
+  <text x="12" y="88" fill="#58a6ff" font-size="8">C</text>
+  <text x="8" y="100" fill="#58a6ff" font-size="7">15'</text>
+  <rect x="30" y="45" width="200" height="60" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="130" y="62" fill="#58a6ff" font-size="9" text-anchor="middle" font-weight="bold">CÓMO CALCULAR</text>
+  <text x="40" y="78" fill="#8b949e" font-size="8">Elevación A = 2do piso − Ground floor</text>
+  <text x="40" y="91" fill="#8b949e" font-size="8">Dimensión B = TOP PIPE − Losa 2do piso</text>
+  <text x="40" y="104" fill="#e3b341" font-size="8">SIEMPRE usar cotas exactas del plano</text>
+  <defs>
+    <marker id="aGA" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#56d364"/></marker>
+    <marker id="aAA" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#e3b341"/></marker>
+    <marker id="aBA" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#58a6ff"/></marker>
+  </defs>
+</svg>`,
+  vizLabel:"Sección del edificio con elevaciones — resta cotas para obtener dimensiones",
+  why:"En un plano de edificio cada elemento tiene una elevación (altura sobre el nivel de referencia). Para calcular una dimensión entre dos puntos, simplemente restas sus elevaciones. Si usas medidas totales del edificio para espacios interiores, incluyes espesores que no corresponden.",
+  good:"Elev. TOP OF PIPE = +32'-7\". Elev. losa 2do piso = +27'-2\". Dimensión B = 32'-7\" − 27'-2\" = 5'-5\". Usas las cotas exactas → la tubería encaja perfectamente.",
+  bad:"Usas la altura total del edificio (190\") como espacio disponible. Eso incluye losas, columnas y muros → la tubería queda fuera de posición → no entra en el espacio real.",
+  content:`<table class="mini-table"><thead><tr><th>Dimensión</th><th>Cómo calcularla</th><th>Respuesta</th></tr></thead><tbody>
+    <tr><td>Elevación A</td><td>2do piso − Ground floor</td><td>15'-6"</td></tr>
+    <tr><td>Dimensión B</td><td>TOP OF PIPE − 2do piso inferior</td><td>5'-5"</td></tr>
+    <tr><td>Dimensión C</td><td>Techo − 2do piso superior</td><td>15'</td></tr>
+  </tbody></table>
+  <div class="tip-box">Siempre usa las cotas del plano. Nunca estimes a ojo ni uses la dimensión total cuando necesitas una medida interior.</div>`
+},
+
+{
+  tag:"REPASO FINAL", title:"Referencia Rápida Completa",
+  subtitle:"Todo lo crítico del examen en una sola pantalla",
+  viz:`
+<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+  <pattern id="finalGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1a2a36" stroke-width="0.5"/>
+  </pattern>
+  <rect width="420" height="260" fill="url(#finalGrid)"/>
+  <rect x="10" y="10" width="190" height="52" rx="8" fill="rgba(31,111,235,0.12)" stroke="#1f6feb" stroke-width="1.5"/>
+  <text x="105" y="28" fill="#58a6ff" font-size="9" text-anchor="middle" font-weight="bold">CUT LENGTH</text>
+  <text x="105" y="44" fill="#e3b341" font-size="10" text-anchor="middle">CC − TO1 − TO2</text>
+  <text x="105" y="57" fill="#8b949e" font-size="8" text-anchor="middle">Siempre restar take-offs</text>
+  <rect x="215" y="10" width="195" height="52" rx="8" fill="rgba(211,153,34,0.12)" stroke="#e3b341" stroke-width="1.5"/>
+  <text x="312" y="28" fill="#e3b341" font-size="9" text-anchor="middle" font-weight="bold">OFFSET 45°</text>
+  <text x="312" y="44" fill="#58a6ff" font-size="10" text-anchor="middle">Travel = Offset × 1.414</text>
+  <text x="312" y="57" fill="#8b949e" font-size="8" text-anchor="middle">porque √2 = 1.414</text>
+  <rect x="10" y="75" width="190" height="52" rx="8" fill="rgba(46,160,67,0.12)" stroke="#2ea043" stroke-width="1.5"/>
+  <text x="105" y="93" fill="#56d364" font-size="9" text-anchor="middle" font-weight="bold">PRESIÓN AGUA</text>
+  <text x="105" y="109" fill="#e3b341" font-size="10" text-anchor="middle">P = Altura × 0.433</text>
+  <text x="105" y="122" fill="#8b949e" font-size="8" text-anchor="middle">PSI = pies × 0.433</text>
+  <rect x="215" y="75" width="195" height="52" rx="8" fill="rgba(218,54,51,0.12)" stroke="#da3633" stroke-width="1.5"/>
+  <text x="312" y="93" fill="#ff7b72" font-size="9" text-anchor="middle" font-weight="bold">TEMPERATURA</text>
+  <text x="312" y="109" fill="#58a6ff" font-size="10" text-anchor="middle">°C = (°F − 32) ÷ 1.8</text>
+  <text x="312" y="122" fill="#8b949e" font-size="8" text-anchor="middle">−40°F = −40°C</text>
+  <rect x="10" y="140" width="195" height="112" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="107" y="157" fill="#58a6ff" font-size="9" text-anchor="middle" font-weight="bold">OD REAL</text>
+  <text x="25"  y="174" fill="#8b949e" font-size="8">2"</text><text x="46" y="174" fill="#e3b341" font-size="8" font-weight="bold">→ 2-3/8"</text>
+  <text x="25"  y="188" fill="#8b949e" font-size="8">3"</text><text x="46" y="188" fill="#e3b341" font-size="8" font-weight="bold">→ 3-1/2"</text>
+  <text x="25"  y="202" fill="#8b949e" font-size="8">4"</text><text x="46" y="202" fill="#e3b341" font-size="8" font-weight="bold">→ 4-1/2"</text>
+  <text x="25"  y="216" fill="#8b949e" font-size="8">8"</text><text x="46" y="216" fill="#e3b341" font-size="8" font-weight="bold">→ 8-5/8"</text>
+  <text x="25"  y="230" fill="#8b949e" font-size="8">10"</text><text x="48" y="230" fill="#e3b341" font-size="8" font-weight="bold">→ 10-3/4"</text>
+  <text x="25"  y="244" fill="#56d364" font-size="8">14"</text><text x="48" y="244" fill="#56d364" font-size="8" font-weight="bold">→ 14" ✓ exacto</text>
+  <rect x="215" y="140" width="195" height="112" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="312" y="157" fill="#58a6ff" font-size="9" text-anchor="middle" font-weight="bold">NÚMEROS CLAVE</text>
+  <text x="228" y="174" fill="#e3b341" font-size="8" font-weight="bold">0.433</text><text x="270" y="174" fill="#8b949e" font-size="8">PSI/pie agua</text>
+  <text x="228" y="188" fill="#e3b341" font-size="8" font-weight="bold">8.33</text> <text x="262" y="188" fill="#8b949e" font-size="8">lbs/galón</text>
+  <text x="228" y="202" fill="#e3b341" font-size="8" font-weight="bold">62.4</text> <text x="264" y="202" fill="#8b949e" font-size="8">lbs/pie³</text>
+  <text x="228" y="216" fill="#e3b341" font-size="8" font-weight="bold">14.7</text> <text x="262" y="216" fill="#8b949e" font-size="8">PSIA atm</text>
+  <text x="228" y="230" fill="#e3b341" font-size="8" font-weight="bold">1700×</text><text x="272" y="230" fill="#8b949e" font-size="8">agua→vapor</text>
+  <text x="228" y="244" fill="#e3b341" font-size="8" font-weight="bold">1.414</text><text x="268" y="244" fill="#8b949e" font-size="8">factor offset</text>
+</svg>`,
+  vizLabel:"Tarjetas de referencia — fórmulas, ODs y números clave del examen",
+  why:"Este es el resumen final. Si puedes recitar cada fórmula y cada OD sin mirar la hoja, estás listo para el examen. La diferencia entre pasar y reprobar muchas veces es simplemente la práctica repetida con estos números.",
+  good:"Repasas las tarjetas 5 minutos cada día por una semana. El día del examen los números te salen solos → contestas rápido y con confianza → apruebas.",
+  bad:"Lees el material una sola vez la noche anterior. En el examen intentas recordar si el OD de 10\" era 10-1/2\" o 10-3/4\" → pierdes tiempo → te equivocas en preguntas que sabías → repruebas por poco.",
+  content:`<div class="formula-chip">0.433 · 8.33 · 62.4 · 14.7 · 1700 · 1.414</div>
+  <div class="tip-box">¡Cuando termines esta guía pídeme el EXAMEN DE PRÁCTICA! Te haré preguntas mezcladas de todos los temas para medir tu nivel real.</div>`
+}
+
+]; // end lessons array
+
+// ═══════════════════════════════════════════════════════════════
+// APP LOGIC
+// ═══════════════════════════════════════════════════════════════
+let currentLesson = -1;
+const done = new Set();
+
+function buildNav() {
+  const nav = document.getElementById('navList');
+  nav.innerHTML = lessons.map((l,i)=>`
+    <div class="nav-item" id="nav-${i}" onclick="goLesson(${i})">
+      <span class="num">${String(i+1).padStart(2,'0')}</span>
+      <span>${l.tag}</span>
+      <span class="check" id="chk-${i}"></span>
+    </div>
+  `).join('');
+}
+
+function goLesson(idx) {
+  document.getElementById('welcomeScreen').style.display = 'none';
+  // Hide all lessons
+  document.querySelectorAll('.lesson').forEach(l=>l.classList.remove('active'));
+  // Show target (build if needed)
+  let lessonEl = document.getElementById(`lesson-${idx}`);
+  if (!lessonEl) lessonEl = buildLesson(idx);
+  lessonEl.classList.add('active');
+  // Nav highlight
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(`nav-${idx}`)?.classList.add('active');
+  currentLesson = idx;
+  updateProgress();
+  // Scroll main to top
+  document.querySelector('.main').scrollTop = 0;
+}
+
+function buildLesson(idx) {
+  const l = lessons[idx];
+  const isLast = idx === lessons.length-1;
+  const el = document.createElement('div');
+  el.className = 'lesson';
+  el.id = `lesson-${idx}`;
+  el.innerHTML = `
+    <div class="lesson-header">
+      <div class="lesson-tag">${l.tag}</div>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-subtitle">${l.subtitle}</div>
+    </div>
+    <div class="lesson-body">
+      <div class="viz-panel">
+        ${l.viz}
+        <div class="viz-label">${l.vizLabel}</div>
+      </div>
+      <div class="text-panel">
+        <div class="why-box">
+          <div class="why-title">¿POR QUÉ PASA ESTO?</div>
+          <p>${l.why}</p>
+        </div>
+        <div class="examples">
+          <div class="ex-good">
+            <div class="ex-label">✅ EJEMPLO BUENO</div>
+            ${l.good}
+          </div>
+          <div class="ex-bad">
+            <div class="ex-label">❌ EJEMPLO MALO</div>
+            ${l.bad}
+          </div>
+        </div>
+        ${l.content || ''}
+      </div>
+    </div>
+    <div class="lesson-footer">
+      <button class="btn btn-prev" onclick="prevLesson()" ${idx===0?'style="opacity:0.3;pointer-events:none"':''}>← ANTERIOR</button>
+      <span class="lesson-num">${idx+1} / ${lessons.length}</span>
+      ${isLast
+        ? `<button class="btn btn-done" onclick="markDone(${idx})">COMPLETADO ✓</button>`
+        : `<button class="btn btn-next" onclick="nextLesson()">SIGUIENTE →</button>`
+      }
+    </div>
+  `;
+  document.getElementById('mainContent').appendChild(el);
+  return el;
+}
+
+function nextLesson() {
+  done.add(currentLesson);
+  document.getElementById(`chk-${currentLesson}`).textContent = '✓';
+  document.getElementById(`nav-${currentLesson}`).classList.add('done');
+  if (currentLesson < lessons.length-1) goLesson(currentLesson+1);
+  updateProgress();
+}
+function prevLesson() {
+  if (currentLesson > 0) goLesson(currentLesson-1);
+}
+function markDone(idx) {
+  done.add(idx);
+  document.getElementById(`chk-${idx}`).textContent = '✓';
+  document.getElementById(`nav-${idx}`).classList.add('done');
+  updateProgress();
+}
+function updateProgress() {
+  const pct = Math.round((done.size / lessons.length)*100);
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('lessonCount').textContent = `${done.size} / ${lessons.length} temas`;
+}
+
+buildNav();
+</script>
+</body>
+</html>
